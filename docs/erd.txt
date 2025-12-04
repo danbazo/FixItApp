@@ -1,0 +1,39 @@
+Entidades principales:
+
+users (base para clientes, técnicos y admins)
+
+technician_profiles (datos extendidos del técnico)
+
+specialties (rubros: plomería, electricidad, etc.)
+
+technician_specialties (m2m + datos por rubro: años, certificado, estado)
+
+technician_certificates (archivos por rubro si necesitás extra)
+
+work_requests (pedido del cliente; incluye fotos URLs, barrio)
+
+work_request_technicians (qué técnicos fueron invitados por el cliente)
+
+quotes (presupuestos enviados por técnicos)
+
+quote_items (desglose: materiales / mano de obra / ítems)
+
+reviews (reseñas entre usuarios; puede usarse para client/tech)
+
+files (opcional: referencia centralizada a S3)
+
+Relaciones clave:
+
+users (1) — (0..1) technician_profiles
+
+technician_profiles (1) — (N) technician_specialties
+
+specialties (1) — (N) technician_specialties
+
+work_requests (1) — (N) work_request_technicians
+
+work_requests (1) — (N) quotes
+
+quotes (1) — (N) quote_items
+
+users (1) — (N) reviews (como reviewer) y users (1) — (N) reviews (como target via target_id)
