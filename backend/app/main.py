@@ -14,14 +14,16 @@ class Direccion(BaseModel):
     ciudad:str
     provincia:str 
 
+
 class Usuario(BaseModel):
     id: int
     nombre: str
     apellido:str
     email:str
     esTec:bool
-    direcciones:List[Direccion]
+    direcciones:Optional[List[Direccion]]=None
     numeroTel:int
+    hashed_password: str
 
 class Rubro(BaseModel):
     id: int
@@ -60,7 +62,13 @@ class Resena(BaseModel):
     puntuacion:int #de 1 a 5
     comentario:str
 
+usuariosDB=[]
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.post("/usuarios")
+def crearUsuario(usuario: Usuario):
+    usuariosDB.append(usuario)
+    return usuario
