@@ -68,10 +68,10 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     first_name: Optional[str]=None
-    last_name:Optional[str]
-    email:Optional[EmailStr]
-    phone:Optional[str]
-    
+    last_name:Optional[str]=None
+    email:Optional[EmailStr]=None
+    phone:Optional[str]=None
+    is_technician:Optional[bool]=None
 
 class ChangePassword(BaseModel):
     current_password: str
@@ -79,8 +79,8 @@ class ChangePassword(BaseModel):
 
 class UserPublic(UserBase):
     id: int
-    created_at: datetime
-    addresses: list[AddressPublic]
+    #created_at: datetime
+    addresses: list[AddressPublic]=[]
 
     model_config = {"from_attributes": True}
 

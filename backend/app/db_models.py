@@ -31,7 +31,7 @@ class Address(Base):
     city_id = Column(Integer, ForeignKey("cities.id"))
     neighborhood_id = Column(Integer, ForeignKey("neighborhoods.id"))
 
-    user=relationship("Used",back_populates="addresses")
+    user=relationship("User",back_populates="addresses")
 
     province = relationship("Province")
     city = relationship("City")
@@ -86,9 +86,9 @@ class Technician(Base):
 
     user = relationship("User")
 
-    categories = relationship("technicianCategory", back_populates="technician")
+    categories = relationship("TechnicianCategory", back_populates="technician")
 
-    work_zones = relationship("technicianWorkZone", back_populates="technician")
+    work_zones = relationship("TechnicianWorkZone", back_populates="technician")
 
 class TechnicianCategory(Base):
     __tablename__ = "technician_categories"
@@ -100,7 +100,7 @@ class TechnicianCategory(Base):
     is_validated = Column(Boolean, default=False)
     certification_path = Column(String)  # futuro: PDF, imagen, etc
 
-    technician = relationship("technician", back_populates="categories")
+    technician = relationship("Technician", back_populates="categories")
     category = relationship("ServiceCategory",back_populates="technicians")
 
 class TechnicianWorkZone(Base):
