@@ -15,7 +15,7 @@ class User(Base):
     hashed_password = Column(String,nullable=False)
 
     addresses = relationship("Address", back_populates="user")
-    technicians = relationship("Technician", back_populates="user")
+    technician = relationship("Technician", back_populates="user")
 
 class Address(Base):
     __tablename__="addresses"
@@ -81,10 +81,10 @@ class Technician(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
 
-    description = Column(String)
+    description = Column(String,)
     rating = Column(Float, default=0)
 
-    user = relationship("User")
+    user = relationship("User", back_populates="technician")
 
     categories = relationship("TechnicianCategory", back_populates="technician")
 
@@ -94,8 +94,8 @@ class TechnicianCategory(Base):
     __tablename__ = "technician_categories"
 
     id = Column(Integer, primary_key=True)
-    technician_id = Column(Integer, ForeignKey("technicians.id"))
-    category_id = Column(Integer, ForeignKey("service_categories.id"))
+    technician_id = Column(Integer, ForeignKey("technicians.id"),nullable=False)
+    category_id = Column(Integer, ForeignKey("service_categories.id"),nullable=False)
 
     is_validated = Column(Boolean, default=False)
     certification_path = Column(String)  # futuro: PDF, imagen, etc
@@ -107,8 +107,8 @@ class TechnicianWorkZone(Base):
     __tablename__ = "technician_work_zones"
 
     id = Column(Integer, primary_key=True)
-    technician_id = Column(Integer, ForeignKey("technicians.id"))
-    neighborhood_id = Column(Integer, ForeignKey("neighborhoods.id"))
+    technician_id = Column(Integer, ForeignKey("technicians.id"),nullable=False)
+    neighborhood_id = Column(Integer, ForeignKey("neighborhoods.id"),nullable=False)
 
     technician = relationship("Technician", back_populates="work_zones")
     neighborhood = relationship("Neighborhood")
@@ -119,8 +119,8 @@ class Job(Base):
     __tablename__ = "jobs"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    category_id = Column(Integer, ForeignKey("service_categories.id"))
+    user_id = Column(Integer, ForeignKey("users.id"),nullable=False)
+    category_id = Column(Integer, ForeignKey("service_categories.id"),nullable=False)
 
     description = Column(String, nullable=False)
     status = Column(String, nullable=False, default="open")
@@ -134,8 +134,8 @@ class Quote(Base):
     __tablename__='quotes'
     
     id = Column(Integer, primary_key=True)
-    job_id = Column(Integer, ForeignKey("jobs.id"))
-    technician_id = Column(Integer, ForeignKey("technicians.id"))
+    job_id = Column(Integer, ForeignKey("jobs.id"),nullable=False)
+    technician_id = Column(Integer, ForeignKey("technicians.id"),nullable=False)
 
     description = Column(String)
     price = Column(Float, nullable=False)
@@ -154,7 +154,7 @@ class Review(Base):
     __tablename__ = "reviews"
 
     id = Column(Integer, primary_key=True)
-    quote_id = Column(Integer, ForeignKey("quotes.id"), unique=True)
+    quote_id = Column(Integer, ForeignKey("quotes.id"), unique=True,nullable=False)
 
     rating = Column(Integer)
     comment = Column(String)
