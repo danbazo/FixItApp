@@ -1,17 +1,17 @@
-from fastapi import Body, FastAPI,status,HTTPException,Response, Depends
-
-from app.db_models import User, Address, Province, City, Neighborhood, Job, Quote, Review, Technician, ServiceCategory, TechnicianCategory, TechnicianWorkZone
+from fastapi import Body, FastAPI
 
 from app.database import engine, Base
 
 from app import db_models
 
-from app.routers import user, auth
+from app.routers import user, auth, certification,technician
 
 app=FastAPI()
 
 app.include_router(auth.router)
 app.include_router(user.router)
+app.include_router(technician.router)
+app.include_router(certification.router)
 
 @app.get("/health")
 def health():
