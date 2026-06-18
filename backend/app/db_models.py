@@ -90,6 +90,8 @@ class Technician(Base):
 
     work_zones = relationship("TechnicianWorkZone", back_populates="technician")
 
+    certifications = relationship("TechnicianCertification", back_populates="technician")
+
 class TechnicianCategory(Base):
     __tablename__ = "technician_categories"
 
@@ -160,3 +162,19 @@ class Review(Base):
     comment = Column(String)
 
     quote = relationship("Quote", back_populates="review")
+
+class TechnicianCertification(Base):
+    __tablename__ = "technician_certifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    technician_id = Column(Integer, ForeignKey("technicians.id"), nullable=False)
+    category_id = Column(Integer, ForeignKey("service_categories.id"), nullable=False)
+
+    name = Column(String, nullable=False)
+    institution = Column(String)
+    year = Column(Integer)
+    file_path = Column(String)
+    is_validated = Column(Boolean, default=False)
+
+    technician = relationship("Technician", back_populates="certifications")
+    category = relationship("ServiceCategory")

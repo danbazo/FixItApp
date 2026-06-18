@@ -108,6 +108,22 @@ class ServiceCategoryPublic(ServiceCategoryBase):
     model_config = {"from_attributes": True}
 
 
+class CertificationBase(BaseModel):
+    name: str
+    institution: Optional[str] = None
+    year: Optional[int] = None
+    category_id: int
+
+class CertificationCreate(CertificationBase):
+    pass
+
+class CertificationPublic(CertificationBase):
+    id: int
+    technician_id: int
+    is_validated: bool
+    file_path: Optional[str] = None
+    model_config = {"from_attributes": True}
+
 
 class TechnicianBase(BaseModel):
     description:str
@@ -127,7 +143,9 @@ class TechnicianPublic(TechnicianBase):
     work_zones_ids:list[int]
     categories_ids:list[int]
     rating:float
+    certifications: list[CertificationPublic] = []
     model_config = {"from_attributes": True}
+
 
 
 class JobBase(BaseModel):
@@ -185,3 +203,5 @@ class ReviewPublic(ReviewBase):
     quote_id: int
 
     model_config = {"from_attributes": True}
+
+
