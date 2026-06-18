@@ -109,7 +109,7 @@ def delete_tech(db: Session, tech_id: int):
 def delete_tech_user(db: Session, user_id: int):
     db_user=db.get(User,user_id)
 
-    if db_user.is_technician:
+    if not db_user.is_technician:
         raise NotFoundErr("User is not technician")
 
     db_tech=db.query(Technician).filter(Technician.user_id == user_id).first()
