@@ -11,6 +11,7 @@ class User(Base):
     last_name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True,nullable=False)
     is_technician = Column(Boolean, default=False)
+    is_admin = Column(Boolean, default=False)
     phone = Column(String)
     hashed_password = Column(String,nullable=False)
 
@@ -73,6 +74,7 @@ class ServiceCategory(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
     description = Column(String)
+    requires_certification = Column(Boolean, default=False)
     technicians = relationship("TechnicianCategory", back_populates="category")
 
 class Technician(Base):
