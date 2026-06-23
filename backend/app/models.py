@@ -152,13 +152,16 @@ class TechnicianPublic(TechnicianBase):
 class JobBase(BaseModel):
     description:str
     category_id:int
+    address_id: int
+    is_private: bool = False
 
 class JobCreate(JobBase):
-    pass
+    technician_ids: list[int] = []
 
 class JobUpdate(BaseModel):
     description:Optional[str]=None
     category_id:Optional[int]=None
+    status: Optional[JobStatus] = None
 
 class JobPublic(JobBase):
     id:int
@@ -166,7 +169,13 @@ class JobPublic(JobBase):
     status:JobStatus
     model_config = {"from_attributes": True}
 
-
+class JobPublicLimited(BaseModel):
+    id: int
+    description: str
+    category_id: int
+    status: JobStatus
+    neighborhood_name: str
+    model_config = {"from_attributes": True}
 
 class QuoteBase(BaseModel):
     description:str

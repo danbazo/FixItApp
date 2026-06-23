@@ -125,13 +125,17 @@ class Job(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"),nullable=False)
     category_id = Column(Integer, ForeignKey("service_categories.id"),nullable=False)
-
+    address_id=Column(Integer, ForeignKey("addresses.id"),nullable=False)
+    
     description = Column(String, nullable=False)
     status = Column(String, nullable=False, default="open")
+    is_private=Column(Boolean,default=False)
 
     user = relationship("User")
     category = relationship("ServiceCategory")
+    address = relationship("Address")
     quotes = relationship("Quote", back_populates="job")
+    invitations = relationship("JobInvitation", back_populates="job")
 
 
 class Quote(Base):
@@ -180,3 +184,13 @@ class TechnicianCertification(Base):
 
     technician = relationship("Technician", back_populates="certifications")
     category = relationship("ServiceCategory")
+
+class JobInvitation(Base):
+    __tablename__ = "job_invitations"
+
+    id = Column(Integer, primary_key=True)
+    job_id = Column(Integer, ForeignKey("jobs.id"), nullable=False)
+    technician_id = Column(Integer, ForeignKey("technicians.id"), nullable=False)
+
+    job = relationship("Job", back_populates="invitations")
+    technician = relationship("Technician")

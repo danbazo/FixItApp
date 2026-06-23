@@ -6,6 +6,7 @@ from app.crud import user as crud_user
 from app.crud import technician as crud_tech
 from app.routers.auth import get_current_user
 from app.db_models import User
+from app.crud.technician import to_public_dict
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -72,12 +73,11 @@ def change_password_endpoint(
 @router.post("/{user_id}/technician", response_model=TechnicianPublic)
 def create_tech(user_id:int, technician: TechnicianCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     user=crud_user.get_user(db,user_id)
-
     if not user:
         raise HTTPException(404, "User not found")
-    
     try:
-        return crud_tech.create_tech(db, technician, user_id)
+        new_tech = crud_tech.create_tech(db, technician, user_id)
+        return to_public_dict(new_tech)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -86,7 +86,7 @@ def get_tech(user_id: int, db: Session = Depends(get_db), current_user: User = D
     technician = crud_tech.get_tech_user(db, user_id)
     if not technician:
         raise HTTPException(404, "Technician not found")
-    return technician
+    return to_public_dict(technician)
 
 @router.delete("/{user_id}/technician")
 def delete_tech(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

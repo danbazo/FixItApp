@@ -121,3 +121,21 @@ def delete_tech_user(db: Session, user_id: int):
 
     db.delete(db_tech)
     db.commit()
+
+
+def get_matching_technicians(db: Session, category_id: int, neighborhood_id: int):
+    return db.query(Technician).join(TechnicianCategory).join(TechnicianWorkZone).filter(
+        TechnicianCategory.category_id == category_id,
+        TechnicianWorkZone.neighborhood_id == neighborhood_id
+    ).distinct().all()
+
+def to_public_dict(technician: Technician) -> dict:
+    return {
+        "id": technician.id,
+        "user_id": technician.user_id,
+        "description": technician.description,
+        "rating": technician.rating,
+        "work_zones_ids": [wz.neighborhood_id for wz in technician.work_zones],
+        "categories_ids": [tc.category_id for tc in technician.categories],
+        "certifications": technician.certifications,
+    }
