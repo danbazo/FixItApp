@@ -49,7 +49,7 @@ def get(job_id: int, db: Session = Depends(get_db), current_user: User = Depends
     job = crud_job.get_job(db, job_id)
     if not job:
         raise HTTPException(404, "Job not found")
-    if job.user_id != current_user.id:
+    if job.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     return job
 
@@ -58,7 +58,7 @@ def update(job_id: int, data: JobUpdate, db: Session = Depends(get_db), current_
     job = crud_job.get_job(db, job_id)
     if not job:
         raise HTTPException(404, "Job not found")
-    if job.user_id != current_user.id:
+    if job.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     return crud_job.update_job(db, job, data)
 
@@ -67,7 +67,7 @@ def delete(job_id: int, db: Session = Depends(get_db), current_user: User = Depe
     job = crud_job.get_job(db, job_id)
     if not job:
         raise HTTPException(404, "Job not found")
-    if job.user_id != current_user.id:
+    if job.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     crud_job.delete_job(db, job)
     return {"ok": True}

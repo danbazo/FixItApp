@@ -19,7 +19,7 @@ def add_certification(
     tech = crud_tech.get_tech(db, technician_id)
     if not tech:
         raise HTTPException(404, "Technician not found")
-    if tech.user_id != current_user.id:
+    if tech.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     return crud_cert.create_certification(db, certification, technician_id)
 
@@ -44,7 +44,7 @@ def delete_certification(
     tech = crud_tech.get_tech(db, technician_id)
     if not tech:
         raise HTTPException(404, "Technician not found")
-    if tech.user_id != current_user.id:
+    if tech.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     try:
         crud_cert.delete_certification(db, cert_id)

@@ -21,7 +21,7 @@ def get(address_id: int, db: Session = Depends(get_db), current_user: User = Dep
     address = crud_address.get_address(db, address_id)
     if not address:
         raise HTTPException(404, "Address not found")
-    if address.user_id != current_user.id:
+    if address.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     return address
 
@@ -30,7 +30,7 @@ def update(address_id: int, data: AdressUpdate, db: Session = Depends(get_db), c
     address = crud_address.get_address(db, address_id)
     if not address:
         raise HTTPException(404, "Address not found")
-    if address.user_id != current_user.id:
+    if address.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     return crud_address.update_address(db, address, data)
 
@@ -39,7 +39,7 @@ def delete(address_id: int, db: Session = Depends(get_db), current_user: User = 
     address = crud_address.get_address(db, address_id)
     if not address:
         raise HTTPException(404, "Address not found")
-    if address.user_id != current_user.id:
+    if address.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     crud_address.delete_address(db, address)
     return {"ok": True}

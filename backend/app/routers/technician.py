@@ -37,7 +37,7 @@ def update_tech(tech_id: int, data: TechnicianUpdate, db: Session = Depends(get_
     technician = crud_tech.get_tech(db, tech_id)
     if not technician:
         raise HTTPException(404, "Technician not found")
-    if technician.user_id != current_user.id:
+    if technician.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     updated = crud_tech.update_tech(db, technician, data)
     return to_public_dict(updated)
@@ -47,7 +47,7 @@ def delete_tech(tech_id: int, db: Session = Depends(get_db),current_user: User =
     technician = crud_tech.get_tech(db, tech_id)
     if not technician:
         raise HTTPException(404, "Technician not found")
-    if technician.user_id != current_user.id:
+    if technician.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(403, "Not authorized")
     crud_tech.delete_tech(db, technician)
     return {"ok": True}
