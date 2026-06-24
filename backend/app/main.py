@@ -22,5 +22,3 @@ app.include_router(job.router)
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-Base.metadata.create_all(bind=engine)

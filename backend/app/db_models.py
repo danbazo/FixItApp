@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
-
+from datetime import datetime, timezone
 
 class User(Base):
     __tablename__ = "users"
@@ -130,6 +130,8 @@ class Job(Base):
     description = Column(String, nullable=False)
     status = Column(String, nullable=False, default="open")
     is_private=Column(Boolean,default=False)
+
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User")
     category = relationship("ServiceCategory")

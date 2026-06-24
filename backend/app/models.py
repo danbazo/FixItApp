@@ -167,6 +167,7 @@ class JobPublic(JobBase):
     id:int
     user_id:int
     status:JobStatus
+    created_at: datetime
     model_config = {"from_attributes": True}
 
 class JobPublicLimited(BaseModel):
