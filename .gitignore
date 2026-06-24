@@ -22,6 +22,9 @@ ENV/
 # ---- FASTAPI / UVICORN ----
 *.log
 
+# Alembic config (contiene credenciales de DB)
+alembic.ini
+
 # ---- NODE / REACT ----
 node_modules/
 npm-debug.log*
