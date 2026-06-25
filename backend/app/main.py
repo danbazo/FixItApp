@@ -6,7 +6,7 @@ from app.database import engine, Base
 
 from app import db_models
 
-from app.routers import user, auth, certification, technician, category, address, job
+from app.routers import user, auth, certification, technician, category, address, job, quote
 
 app=FastAPI()
 
@@ -17,7 +17,8 @@ app.include_router(certification.router)
 app.include_router(category.router)
 app.include_router(address.router)
 app.include_router(job.router)
-
+app.include_router(quote.router)
+app.include_router(quote.my_quotes_router)
 
 @app.get("/health")
 def health():

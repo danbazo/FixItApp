@@ -60,7 +60,6 @@ class UserBase(BaseModel):
     first_name: str
     last_name:str
     email:EmailStr
-    is_technician:bool=False
     phone:str
 
 class UserCreate(UserBase):
@@ -71,7 +70,6 @@ class UserUpdate(BaseModel):
     last_name:Optional[str]=None
     email:Optional[EmailStr]=None
     phone:Optional[str]=None
-    is_technician:Optional[bool]=None
 
 class ChangePassword(BaseModel):
     current_password: str
@@ -79,6 +77,7 @@ class ChangePassword(BaseModel):
 
 class UserPublic(UserBase):
     id: int
+    is_technician: bool
     is_admin:bool
     #created_at: datetime
     addresses: list[AddressPublic]=[]
@@ -178,23 +177,35 @@ class JobPublicLimited(BaseModel):
     neighborhood_name: str
     model_config = {"from_attributes": True}
 
-class QuoteBase(BaseModel):
-    description:str
-    price:float
+class QuoteLineBase(BaseModel):
+    description: str
+    quantity: float = 1
+    unit_price: float
 
-class QuoteCreate(QuoteBase):
+class QuoteLineCreate(QuoteLineBase):
     pass
 
+class QuoteLinePublic(QuoteLineBase):
+    id: int
+    model_config = {"from_attributes": True}
+
+class QuoteBase(BaseModel):
+    description: Optional[str] = None
+
+class QuoteCreate(QuoteBase):
+    lines: list[QuoteLineCreate]
+
 class QuoteUpdate(BaseModel):
-    description:Optional[str]=None
-    price:Optional[float]=None
+    description: Optional[str] = None
+    lines: Optional[list[QuoteLineCreate]] = None
 
 class QuotePublic(QuoteBase):
-    id:int
-    job_id:int
-    tech_id:int
-    status:QuoteStatus
-
+    id: int
+    job_id: int
+    technician_id: int
+    status: QuoteStatus
+    total: float
+    lines: list[QuoteLinePublic] = []
     model_config = {"from_attributes": True}
 
 
