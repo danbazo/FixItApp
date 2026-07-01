@@ -9,7 +9,7 @@ from app.routers.auth import get_current_user
 from app.db_models import User
 
 router = APIRouter(prefix="/jobs/{job_id}/quotes", tags=["Quotes"])
-my_quotes_router = APIRouter(prefix="/quotes", tags=["Quotes"])
+
 
 @router.post("/", response_model=QuotePublic)
 def create_quote(
@@ -52,21 +52,27 @@ def list_quotes(
 
     raise HTTPException(403, "Not authorized")
 
-@router.get("/{quote_id}", response_model=QuotePublic)
-def get_quote(
-    job_id: int,
-    quote_id: int,
+detail_router = APIRouter(prefix="/quotes", tags=["Quotes"])
+
+@detail_router.get("/mine", response_model=list[QuotePublic])
+def list_my_quotes(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    job = crud_job.get_job(db, job_id)
-    if not job:
-        raise HTTPException(404, "Job not found")
+    technician = crud_tech.get_tech_user(db, current_user.id)
+    if not technician:
+        raise HTTPException(403, "Only technicians have quotes to list")
 
+    return crud_quote.get_quotes_by_technician(db, technician.id)
+
+
+@detail_router.get("/{quote_id}", response_model=QuotePublic)
+def get_quote(quote_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     quote = crud_quote.get_quote(db, quote_id)
-    if not quote or quote.job_id != job_id:
+    if not quote:
         raise HTTPException(404, "Quote not found")
 
+    job = crud_job.get_job(db, quote.job_id)
     technician = crud_tech.get_tech_user(db, current_user.id)
     is_owner = job.user_id == current_user.id
     is_quote_author = technician and quote.technician_id == technician.id
@@ -77,16 +83,10 @@ def get_quote(
 
     return quote
 
-@router.put("/{quote_id}", response_model=QuotePublic)
-def update_quote(
-    job_id: int,
-    quote_id: int,
-    data: QuoteUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+@detail_router.put("/{quote_id}", response_model=QuotePublic)
+def update_quote(quote_id: int, data: QuoteUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     quote = crud_quote.get_quote(db, quote_id)
-    if not quote or quote.job_id != job_id:
+    if not quote:
         raise HTTPException(404, "Quote not found")
 
     technician = crud_tech.get_tech_user(db, current_user.id)
@@ -98,36 +98,25 @@ def update_quote(
 
     return crud_quote.update_quote(db, quote, data)
 
-@router.post("/{quote_id}/accept", response_model=QuotePublic)
-def accept_quote(
-    job_id: int,
-    quote_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    job = crud_job.get_job(db, job_id)
-    if not job:
-        raise HTTPException(404, "Job not found")
+@detail_router.post("/{quote_id}/accept", response_model=QuotePublic)
+def accept_quote(quote_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    quote = crud_quote.get_quote(db, quote_id)
+    if not quote:
+        raise HTTPException(404, "Quote not found")
+
+    job = crud_job.get_job(db, quote.job_id)
     if job.user_id != current_user.id:
         raise HTTPException(403, "Only the job owner can accept a quote")
 
-    quote = crud_quote.get_quote(db, quote_id)
-    if not quote or quote.job_id != job_id:
-        raise HTTPException(404, "Quote not found")
     if quote.status != "sent":
         raise HTTPException(400, "This quote is no longer available")
 
     return crud_quote.accept_quote(db, quote, job)
 
-@router.delete("/{quote_id}")
-def delete_quote(
-    job_id: int,
-    quote_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+@detail_router.delete("/{quote_id}")
+def delete_quote(quote_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     quote = crud_quote.get_quote(db, quote_id)
-    if not quote or quote.job_id != job_id:
+    if not quote:
         raise HTTPException(404, "Quote not found")
 
     technician = crud_tech.get_tech_user(db, current_user.id)
@@ -139,14 +128,3 @@ def delete_quote(
 
     crud_quote.delete_quote(db, quote)
     return {"ok": True}
-
-@my_quotes_router.get("/mine", response_model=list[QuotePublic])
-def list_my_quotes(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    technician = crud_tech.get_tech_user(db, current_user.id)
-    if not technician:
-        raise HTTPException(403, "Only technicians have quotes to list")
-
-    return crud_quote.get_quotes_by_technician(db, technician.id)

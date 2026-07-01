@@ -10,6 +10,34 @@ from app.crud.technician import to_public_dict
 
 router = APIRouter(prefix="/technicians", tags=["Technicians"])
 
+
+
+
+@router.post("/", response_model=TechnicianPublic)
+def create_tech(technician: TechnicianCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    try:
+        new_tech = crud_tech.create_tech(db, technician, current_user.id)
+        return to_public_dict(new_tech)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/mine", response_model=TechnicianPublic)
+def get_tech(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    technician = crud_tech.get_tech_user(db, current_user.id)
+    if not technician:
+        raise HTTPException(404, "Technician profile not found")
+    return to_public_dict(technician)
+
+@router.delete("/mine")
+def delete_tech(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    technician = crud_tech.get_tech_user(db, current_user.id)
+    if not technician:
+        raise HTTPException(404, "Technician profile not found")
+    crud_tech.delete_tech_user(db, current_user.id)
+    return {"ok": True}
+
+
+
 @router.get("/match", response_model=list[TechnicianPublic])
 def match_technicians(
     category_id: int,

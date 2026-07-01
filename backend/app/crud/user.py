@@ -9,7 +9,6 @@ def create_user(db: Session, user: UserCreate):
         last_name=user.last_name,
         email=user.email,
         phone=user.phone,
-        is_technician=user.is_technician,
         hashed_password=hash_password(user.password),
         )
     

@@ -59,37 +59,3 @@ def change_password_endpoint(user_id: int, data: ChangePassword, db: Session = D
     except ValueError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password")
     return {"message": "Password updated successfully"}
-
-
-
-#create technitian
-
-@router.post("/{user_id}/technician", response_model=TechnicianPublic)
-def create_tech(user_id: int, technician: TechnicianCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    if user_id != current_user.id:
-        raise HTTPException(403, "Not authorized")
-    user = crud_user.get_user(db, user_id)
-    if not user:
-        raise HTTPException(404, "User not found")
-    try:
-        new_tech = crud_tech.create_tech(db, technician, user_id)
-        return to_public_dict(new_tech)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@router.get("/{user_id}/technician", response_model=TechnicianPublic)
-def get_tech(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    technician = crud_tech.get_tech_user(db, user_id)
-    if not technician:
-        raise HTTPException(404, "Technician not found")
-    return to_public_dict(technician)
-
-@router.delete("/{user_id}/technician")
-def delete_tech(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    if user_id != current_user.id and not current_user.is_admin:
-        raise HTTPException(403, "Not authorized")
-    user = crud_user.get_user(db, user_id)
-    if not user:
-        raise HTTPException(404, "User not found")
-    crud_tech.delete_tech_user(db, user_id)
-    return {"ok": True}

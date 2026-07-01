@@ -1,6 +1,4 @@
-from unicodedata import category
-
-from fastapi import Body, FastAPI
+from fastapi import FastAPI
 
 from app.database import engine, Base
 
@@ -18,7 +16,7 @@ app.include_router(category.router)
 app.include_router(address.router)
 app.include_router(job.router)
 app.include_router(quote.router)
-app.include_router(quote.my_quotes_router)
+app.include_router(quote.detail_router)
 
 @app.get("/health")
 def health():

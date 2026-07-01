@@ -7,47 +7,41 @@ from app.crud import technician as crud_tech
 from app.routers.auth import get_current_user
 from app.db_models import User
 
-router = APIRouter(prefix="/technicians", tags=["Certifications"])
+router = APIRouter(prefix="/technicians/mine/certifications", tags=["Certifications"])
 
-@router.post("/{technician_id}/certifications", response_model=CertificationPublic)
+def _get_own_technician(db: Session, current_user: User):
+    technician = crud_tech.get_tech_user(db, current_user.id)
+    if not technician:
+        raise HTTPException(403, "You don't have a technician profile")
+    return technician
+
+@router.post("/", response_model=CertificationPublic)
 def add_certification(
-    technician_id: int,
     certification: CertificationCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    tech = crud_tech.get_tech(db, technician_id)
-    if not tech:
-        raise HTTPException(404, "Technician not found")
-    if tech.user_id != current_user.id and not current_user.is_admin:
-        raise HTTPException(403, "Not authorized")
-    return crud_cert.create_certification(db, certification, technician_id)
+    technician = _get_own_technician(db, current_user)
+    return crud_cert.create_certification(db, certification, technician.id)
 
-@router.get("/{technician_id}/certifications", response_model=list[CertificationPublic])
+@router.get("/", response_model=list[CertificationPublic])
 def list_certifications(
-    technician_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    tech = crud_tech.get_tech(db, technician_id)
-    if not tech:
-        raise HTTPException(404, "Technician not found")
-    return crud_cert.get_certifications(db, technician_id)
+    technician = _get_own_technician(db, current_user)
 
-@router.delete("/{technician_id}/certifications/{cert_id}")
+    return crud_cert.get_certifications(db, technician.id)
+
+@router.delete("/{cert_id}")
 def delete_certification(
-    technician_id: int,
     cert_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    tech = crud_tech.get_tech(db, technician_id)
-    if not tech:
-        raise HTTPException(404, "Technician not found")
-    if tech.user_id != current_user.id and not current_user.is_admin:
-        raise HTTPException(403, "Not authorized")
-    try:
-        crud_cert.delete_certification(db, cert_id)
-    except ValueError:
+    technician = _get_own_technician(db, current_user)
+    cert = crud_cert.get_certification(db, cert_id)
+    if not cert or cert.technician_id != technician.id:
         raise HTTPException(404, "Certification not found")
+    crud_cert.delete_certification(db, cert_id)
     return {"ok": True}
